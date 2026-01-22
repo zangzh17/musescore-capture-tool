@@ -23,7 +23,6 @@ A self-hosted web application for capturing sheet music from MuseScore.com and s
 - **High Quality Output** - Convert from original SVG vector files for maximum clarity
 - **Multiple Formats** - Generate individual PNG/PDF for each page, plus a merged PDF
 - **Task Management** - Async task processing with real-time progress display
-- **Docker Ready** - One-click deployment with Docker Compose
 
 ## Tech Stack
 
@@ -37,13 +36,13 @@ A self-hosted web application for capturing sheet music from MuseScore.com and s
 
 ## Quick Start
 
-### Docker (Recommended)
+### Docker 
 
 ```bash
 docker-compose up -d --build
 ```
 
-### Local Development
+### Local Development (Recommended)
 
 ```bash
 # Using uv
