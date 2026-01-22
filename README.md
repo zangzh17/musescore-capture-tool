@@ -1,86 +1,97 @@
-# MuseScore 乐谱截取工具
+**English** | [中文](README_zh.md)
 
-一个可自部署的 Web 应用，用于从 MuseScore.com 截取乐谱，并将其保存为分页的 PNG 图片和合并的 PDF 文件。本工具通过浏览器自动化实现，支持用户登录以访问需要会员权限的完整乐谱。
+<div align="center">
 
-## ✨ 功能特性
+# MuseScore Capture Tool
 
-- **Web 界面**：提供简单易用的网页界面，只需粘贴乐谱链接即可开始。
-- **用户登录**：支持在浏览器中手动登录 MuseScore 账户，并持久化保存登录状态，无需重复登录。
-- **自动分页**：自动检测乐谱总页数并逐页截取。
-- **高质量输出**：通过下载原始 SVG 矢量文件进行转换，确保输出的图片和 PDF 拥有最高的清晰度。
-- **多种格式**：为每一页生成单独的 PNG 图片和 PDF 文件，并提供一个合并后的完整 PDF 文件。
-- **任务管理**：支持异步任务处理，可同时处理多个截取请求，并实时显示进度。
-- **容器化部署**：提供 Dockerfile 和 docker-compose.yml，一键在本地或云端部署。
+A self-hosted web application for capturing sheet music from MuseScore.com and saving it as PNG images and merged PDF files.
 
-## 🛠️ 技术架构
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)](https://flask.palletsprojects.com/)
+[![Playwright](https://img.shields.io/badge/Playwright-Automation-orange.svg)](https://playwright.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-本项目采用前后端分离的架构，后端负责浏览器自动化和文件处理，前端提供用户交互界面。
+</div>
 
-- **后端**: **Flask** (Python Web 框架)
-  - 使用 **Playwright** 进行浏览器自动化操作，模拟用户行为（如登录、导航）。
-  - 使用 **CairoSVG** 将乐谱的 SVG 源文件转换为高质量的 PNG 和 PDF。
-  - 使用 **PyPDF2** 将分页的 PDF 合并为单个文件。
+---
 
-- **前端**: 原生 HTML, CSS, JavaScript
-  - 通过 Fetch API 与后端进行异步通信，实现任务提交和状态轮询。
+## Features
 
+- **Web Interface** - Simple and intuitive UI, just paste the score link to start
+- **User Login** - Support manual login to MuseScore account with persistent session
+- **Auto Pagination** - Automatically detect total pages and capture each page
+- **High Quality Output** - Convert from original SVG vector files for maximum clarity
+- **Multiple Formats** - Generate individual PNG/PDF for each page, plus a merged PDF
+- **Task Management** - Async task processing with real-time progress display
+- **Docker Ready** - One-click deployment with Docker Compose
 
-## 🚀 部署指南
+## Tech Stack
 
+| Component | Technology |
+|-----------|------------|
+| Backend | Flask (Python) |
+| Browser Automation | Playwright |
+| SVG Processing | CairoSVG |
+| PDF Merging | PyPDF2 |
+| Frontend | HTML / CSS / JavaScript |
 
-1.  **构建并启动**
+## Quick Start
 
-    在项目根目录（包含 `docker-compose.yml` 的目录）下，运行以下命令：
+### Docker (Recommended)
 
-    ```bash
-    docker-compose up -d --build
-    ```
+```bash
+docker-compose up -d --build
+```
 
-    或者本地uv 环境：
-    ```bash
-    uv run app.py --port 5000
-    ```
+### Local Development
 
-3.  **访问应用**
+```bash
+# Using uv
+uv run app.py --port 5000
 
-    启动成功后，在浏览器中访问 `http://<您的服务器IP>:5000` 或 `http://localhost:5000` 即可打开 Web 界面。
+# Or using pip
+pip install -r requirements.txt
+python app.py --port 5000
+```
 
-## 📖 使用方法
+Then open `http://localhost:5000` in your browser.
 
-1.  **检查登录状态**
-    - 首次访问时，状态栏会显示“未登录”。
+## Usage
 
-2.  **登录 MuseScore 账户**
-    - 点击“登录”按钮，应用会启动一个**带界面的浏览器窗口**（如果部署在远程服务器，需要配置 VNC 或 X11 转发才能看到界面；在本地部署则会直接弹出）。
-    - 在弹出的浏览器中，完成您的 MuseScore 账户登录操作。
-    - 登录成功后，关闭浏览器窗口，并点击网页界面上的“完成登录”按钮。应用会自动切换回无头模式，并保存您的登录状态。
+### 1. Login to MuseScore
 
-3.  **截取乐谱**
-    - 在 MuseScore 网站上找到您想截取的乐谱，复制其页面的 URL。
-    - 将 URL 粘贴到工具的输入框中。
-    - 点击“开始截取”按钮。
+Click the **Login** button to open a browser window. Complete your MuseScore login, then click **Finish Login** in the web interface.
 
-4.  **查看进度并下载**
-    - 截取任务将在后台运行，界面会实时显示进度（例如：“正在截取: 3/10 页”）。
-    - 任务完成后，结果区域会显示乐谱信息和下载按钮。
-    - 您可以下载合并后的完整 PDF，或单独下载每一页的 PNG 图片。
+> Note: For remote servers, VNC or X11 forwarding is required to see the browser window.
 
-## 📁 项目文件结构
+### 2. Capture Sheet Music
+
+1. Copy the URL of a score from MuseScore.com
+2. Paste it into the input field
+3. Click **Start Capture**
+
+### 3. Download Results
+
+- View real-time progress (e.g., "Capturing: 3/10 pages")
+- Download the merged PDF or individual PNG images
+
+## Project Structure
 
 ```
-/home/ubuntu/musescore-capture-tool
-├── app.py                  # Flask Web 应用主文件
-├── capture.py              # 核心截取逻辑模块
-├── Dockerfile              # 用于构建 Docker 镜像
-├── docker-compose.yml      # Docker Compose 部署文件
-├── requirements.txt        # Python 依赖列表
-├── README.md               # 本文档
-├── src/                    # Python 源码目录
-│   ├── __init__.py
-│   └── capture.py
-├── static/                 # 静态文件（CSS, JS, 图片）
+musescore-capture-tool/
+├── app.py                  # Flask web application
+├── src/
+│   └── capture.py          # Core capture logic
 ├── templates/
-│   └── index.html          # 前端 HTML 模板
-├── downloads/              # （自动创建）存放截取的乐谱文件
-└── browser_data/           # （自动创建）存放浏览器用户数据和登录状态
+│   └── index.html          # Frontend template
+├── static/                 # Static assets
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── downloads/              # Output directory (auto-created)
+└── browser_data/           # Browser session data (auto-created)
 ```
+
+## License
+
+MIT
