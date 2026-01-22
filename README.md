@@ -1,97 +1,97 @@
-**English** | [中文](README_zh.md)
+[English](README_en.md) | **中文**
 
 <div align="center">
 
-# MuseScore Capture Tool
+# MuseScore 乐谱截取工具
 
-A self-hosted web application for capturing sheet music from MuseScore.com and saving it as PNG images and merged PDF files.
+一个可自部署的 Web 应用，用于从 MuseScore.com 截取乐谱，保存为 PNG 图片和 PDF 文件。
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)](https://flask.palletsprojects.com/)
-[![Playwright](https://img.shields.io/badge/Playwright-Automation-orange.svg)](https://playwright.dev/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![Playwright](https://img.shields.io/badge/Playwright-自动化-orange.svg)](https://playwright.dev/)
+[![Docker](https://img.shields.io/badge/Docker-支持-blue.svg)](https://www.docker.com/)
 
 </div>
 
 ---
 
-## Features
+## 功能特性
 
-- **Web Interface** - Simple and intuitive UI, just paste the score link to start
-- **User Login** - Support manual login to MuseScore account with persistent session
-- **Auto Pagination** - Automatically detect total pages and capture each page
-- **High Quality Output** - Convert from original SVG vector files for maximum clarity
-- **Multiple Formats** - Generate individual PNG/PDF for each page, plus a merged PDF
-- **Task Management** - Async task processing with real-time progress display
-- **Docker Ready** - One-click deployment with Docker Compose
+- **Web 界面** - 简单易用，粘贴乐谱链接即可开始
+- **用户登录** - 支持登录 MuseScore 账户，持久化保存登录状态
+- **自动分页** - 自动检测乐谱总页数并逐页截取
+- **高质量输出** - 下载原始 SVG 矢量文件转换，确保最高清晰度
+- **多种格式** - 为每页生成 PNG 和 PDF，并提供合并后的完整 PDF
+- **任务管理** - 异步任务处理，实时显示进度
+- **容器化部署** - Docker Compose 一键部署
 
-## Tech Stack
+## 技术架构
 
-| Component | Technology |
-|-----------|------------|
-| Backend | Flask (Python) |
-| Browser Automation | Playwright |
-| SVG Processing | CairoSVG |
-| PDF Merging | PyPDF2 |
-| Frontend | HTML / CSS / JavaScript |
+| 组件 | 技术 |
+|------|------|
+| 后端 | Flask (Python) |
+| 浏览器自动化 | Playwright |
+| SVG 处理 | CairoSVG |
+| PDF 合并 | PyPDF2 |
+| 前端 | HTML / CSS / JavaScript |
 
-## Quick Start
+## 快速开始
 
-### Docker (Recommended)
+### Docker 部署（推荐）
 
 ```bash
 docker-compose up -d --build
 ```
 
-### Local Development
+### 本地开发
 
 ```bash
-# Using uv
+# 使用 uv
 uv run app.py --port 5000
 
-# Or using pip
+# 或使用 pip
 pip install -r requirements.txt
 python app.py --port 5000
 ```
 
-Then open `http://localhost:5000` in your browser.
+启动后访问 `http://localhost:5000`
 
-## Usage
+## 使用方法
 
-### 1. Login to MuseScore
+### 1. 登录 MuseScore
 
-Click the **Login** button to open a browser window. Complete your MuseScore login, then click **Finish Login** in the web interface.
+点击 **登录** 按钮，在弹出的浏览器窗口中完成登录，然后点击 **完成登录**。
 
-> Note: For remote servers, VNC or X11 forwarding is required to see the browser window.
+> 注意：远程服务器需要配置 VNC 或 X11 转发才能看到浏览器窗口。
 
-### 2. Capture Sheet Music
+### 2. 截取乐谱
 
-1. Copy the URL of a score from MuseScore.com
-2. Paste it into the input field
-3. Click **Start Capture**
+1. 在 MuseScore 网站复制乐谱 URL
+2. 粘贴到输入框
+3. 点击 **开始截取**
 
-### 3. Download Results
+### 3. 下载结果
 
-- View real-time progress (e.g., "Capturing: 3/10 pages")
-- Download the merged PDF or individual PNG images
+- 实时查看进度（如："正在截取: 3/10 页"）
+- 下载合并后的 PDF 或单独的 PNG 图片
 
-## Project Structure
+## 项目结构
 
 ```
 musescore-capture-tool/
-├── app.py                  # Flask web application
+├── app.py                  # Flask Web 应用
 ├── src/
-│   └── capture.py          # Core capture logic
+│   └── capture.py          # 核心截取逻辑
 ├── templates/
-│   └── index.html          # Frontend template
-├── static/                 # Static assets
+│   └── index.html          # 前端模板
+├── static/                 # 静态资源
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
-├── downloads/              # Output directory (auto-created)
-└── browser_data/           # Browser session data (auto-created)
+├── downloads/              # 输出目录（自动创建）
+└── browser_data/           # 浏览器数据（自动创建）
 ```
 
-## License
+## 许可证
 
 MIT
