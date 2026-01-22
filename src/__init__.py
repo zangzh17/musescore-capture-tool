@@ -1,0 +1,1 @@
+# MuseScore Capture Tool

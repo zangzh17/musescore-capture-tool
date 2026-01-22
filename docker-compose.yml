@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  musescore-capture:
+    build: .
+    container_name: musescore-capture
+    ports:
+      - "5000:5000"
+    volumes:
+      # 持久化下载文件
+      - ./downloads:/app/downloads
+      # 持久化浏览器登录状态
+      - ./browser_data:/app/browser_data
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    # 安全设置
+    security_opt:
+      - seccomp:unconfined
+    # 共享内存（Chromium 需要）
+    shm_size: '2gb'

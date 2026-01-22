@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuseScore 乐谱截取工具</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+        
+        .status-indicator.logged-in {
+            background: #28a745;
+        }
+        
+        .status-text {
+            flex: 1;
+            color: #333;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .progress-container.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .result-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .result-container.active {
+            display: block;
+        }
+        
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #28a745;
+        }
+        
+        .result-info {
+            margin-bottom: 15px;
+        }
+        
+        .result-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+        
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .task-list {
+            margin-top: 20px;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .task-status.pending {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .task-status.running {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .task-status.completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .task-status.error {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-url {
+            font-size: 14px;
+            color: #666;
+            word-break: break-all;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            padding: 15px;
+            background: #f8d7da;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e7f3ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .download-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🎵 MuseScore 乐谱截取工具</h1>
+            <p class="subtitle">输入 MuseScore 乐谱链接，自动截取并生成 PDF</p>
+            
+            <!-- 登录状态 -->
+            <div class="status-bar">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span class="status-text" id="statusText">检查登录状态...</span>
+                <button class="btn btn-secondary" id="loginBtn" onclick="startLogin()">登录</button>
+            </div>
+            
+            <!-- URL 输入 -->
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="粘贴 MuseScore 乐谱链接，例如: https://musescore.com/user/xxx/scores/xxx">
+                <button class="btn btn-primary" id="captureBtn" onclick="startCapture()">开始截取</button>
+            </div>
+            
+            <!-- 错误信息 -->
+            <div class="error-message" id="errorMessage"></div>
+            
+            <!-- 进度显示 -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text" id="progressText">准备中...</p>
+            </div>
+            
+            <!-- 结果显示 -->
+            <div class="result-container" id="resultContainer">
+                <div class="result-title">✅ 截取完成</div>
+                <div class="result-info" id="resultInfo"></div>
+                <div class="download-buttons" id="downloadButtons"></div>
+            </div>
+            
+            <!-- 使用说明 -->
+            <div class="instructions">
+                <h3>📖 使用说明</h3>
+                <ol>
+                    <li><strong>登录账户</strong>：点击"登录"按钮，在弹出的浏览器窗口中登录您的 MuseScore 账户</li>
+                    <li><strong>粘贴链接</strong>：复制 MuseScore 乐谱页面的 URL 并粘贴到输入框</li>
+                    <li><strong>开始截取</strong>：点击"开始截取"按钮，等待处理完成</li>
+                    <li><strong>下载文件</strong>：截取完成后，可下载 PNG 图片或合并的 PDF 文件</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- 任务历史 -->
+        <div class="card" id="taskHistoryCard" style="display: none;">
+            <h2>📋 任务历史</h2>
+            <div class="task-list" id="taskList"></div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTaskId = null;
+        let pollInterval = null;
+        
+        // 检查登录状态
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const indicator = document.getElementById('statusIndicator');
+                const text = document.getElementById('statusText');
+                const loginBtn = document.getElementById('loginBtn');
+                
+                if (data.logged_in) {
+                    indicator.classList.add('logged-in');
+                    text.textContent = '已登录 MuseScore';
+                    loginBtn.textContent = '重新登录';
+                } else {
+                    indicator.classList.remove('logged-in');
+                    text.textContent = '未登录（部分乐谱可能无法完整截取）';
+                    loginBtn.textContent = '登录';
+                }
+            } catch (error) {
+                console.error('检查状态失败:', error);
+            }
+        }
+        
+        // 开始登录
+        async function startLogin() {
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = '正在打开浏览器...';
+            
+            try {
+                const response = await fetch('/api/login/start', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    loginBtn.textContent = '登录中...';
+                    document.getElementById('statusText').textContent = '请在弹出的浏览器窗口中完成登录';
+                    
+                    // 显示完成登录按钮
+                    loginBtn.textContent = '完成登录';
+                    loginBtn.disabled = false;
+                    loginBtn.onclick = finishLogin;
+                }
+            } catch (error) {
+                console.error('启动登录失败:', error);
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登录';
+            }
+        }
+        
+        // 完成登录
+        async function finishLogin() {
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = '处理中...';
+            
+            try {
+                const response = await fetch('/api/login/finish', { method: 'POST' });
+                const data = await response.json();
+                
+                loginBtn.onclick = startLogin;
+                await checkStatus();
+            } catch (error) {
+                console.error('完成登录失败:', error);
+            }
+            
+            loginBtn.disabled = false;
+        }
+        
+        // 开始截取
+        async function startCapture() {
+            const url = document.getElementById('urlInput').value.trim();
+            
+            if (!url) {
+                showError('请输入 MuseScore 乐谱链接');
+                return;
+            }
+            
+            if (!url.includes('musescore.com')) {
+                showError('请输入有效的 MuseScore 链接');
+                return;
+            }
+            
+            hideError();
+            hideResult();
+            showProgress();
+            
+            const captureBtn = document.getElementById('captureBtn');
+            captureBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/capture', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    hideProgress();
+                    captureBtn.disabled = false;
+                    return;
+                }
+                
+                currentTaskId = data.task_id;
+                startPolling();
+                
+            } catch (error) {
+                showError('请求失败: ' + error.message);
+                hideProgress();
+                captureBtn.disabled = false;
+            }
+        }
+        
+        // 轮询任务状态
+        function startPolling() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+            }
+            
+            pollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/task/${currentTaskId}`);
+                    const task = await response.json();
+                    
+                    updateProgress(task);
+                    
+                    if (task.status === 'completed') {
+                        clearInterval(pollInterval);
+                        showResult(task);
+                        document.getElementById('captureBtn').disabled = false;
+                    } else if (task.status === 'error') {
+                        clearInterval(pollInterval);
+                        showError(task.error || '截取失败');
+                        hideProgress();
+                        document.getElementById('captureBtn').disabled = false;
+                    }
+                } catch (error) {
+                    console.error('轮询失败:', error);
+                }
+            }, 1000);
+        }
+        
+        // 更新进度
+        function updateProgress(task) {
+            const fill = document.getElementById('progressFill');
+            const text = document.getElementById('progressText');
+            
+            fill.style.width = task.progress + '%';
+            
+            if (task.status === 'pending') {
+                text.textContent = '准备中...';
+            } else if (task.status === 'running') {
+                text.textContent = `正在截取: ${task.current_page}/${task.total_pages} 页`;
+            }
+        }
+        
+        // 显示结果
+        function showResult(task) {
+            hideProgress();
+            
+            const container = document.getElementById('resultContainer');
+            const info = document.getElementById('resultInfo');
+            const buttons = document.getElementById('downloadButtons');
+            
+            const result = task.result;
+            
+            info.innerHTML = `
+                <p><strong>标题:</strong> ${result.title}</p>
+                <p><strong>作曲家:</strong> ${result.composer}</p>
+                <p><strong>页数:</strong> ${result.total_pages} 页</p>
+            `;
+            
+            buttons.innerHTML = '';
+            
+            // PDF 下载按钮
+            if (result.pdf_file) {
+                const pdfBtn = document.createElement('button');
+                pdfBtn.className = 'btn btn-success';
+                pdfBtn.textContent = '📄 下载 PDF';
+                pdfBtn.onclick = () => window.open(`/api/download-pdf/${task.id}`, '_blank');
+                buttons.appendChild(pdfBtn);
+            }
+            
+            // 各页下载按钮
+            result.pages.forEach((page, index) => {
+                const pngBtn = document.createElement('button');
+                pngBtn.className = 'btn btn-secondary';
+                pngBtn.textContent = `🖼️ 第 ${page.page} 页 PNG`;
+                pngBtn.onclick = () => window.open(`/api/download/${task.id}/page_${page.page}.png`, '_blank');
+                buttons.appendChild(pngBtn);
+            });
+            
+            container.classList.add('active');
+        }
+        
+        // 显示/隐藏辅助函数
+        function showProgress() {
+            document.getElementById('progressContainer').classList.add('active');
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = '准备中...';
+        }
+        
+        function hideProgress() {
+            document.getElementById('progressContainer').classList.remove('active');
+        }
+        
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.classList.add('active');
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('active');
+        }
+        
+        function hideResult() {
+            document.getElementById('resultContainer').classList.remove('active');
+        }
+        
+        // 页面加载时检查状态
+        document.addEventListener('DOMContentLoaded', () => {
+            checkStatus();
+        });
+    </script>
+</body>
+</html>
